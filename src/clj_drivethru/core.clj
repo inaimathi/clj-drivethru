@@ -31,29 +31,3 @@
                      model/wait-for-user-response!
                      model/robot-response!)))))]
     (f model/robot-response!)))
-
-
-;;; Audio recording thread
-(def listener (atom nil))
-
-(defn stop! []
-  ((:watcher @listener))
-  (.interrupt (:thread @listener))
-  (reset! listener nil)
-  nil)
-
-(defn start! [dir]
-  (let [thread (Thread. (fn [] (snd/record-ambient :dir dir)))
-        stop-watch (watch/start-watch
-                    [{:path dir
-                      :event-types [:create :modify]
-                      :callback (fn [event filename]
-                                  (println "Detected non-silence...")
-                                  (stop!)
-                                  (println "Stopped listener, taking order...")
-                                  (println "ORDER RESULT: " (take-order!))
-                                  (start!)
-                                  (println "Started listener thread"))}])]
-    (.start thread)
-    (reset! listener {:thread thread :watcher stop-watch})
-    nil))
