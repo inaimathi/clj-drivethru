@@ -9,6 +9,8 @@
 (declare PROMPT)
 (def ORDER (atom nil))
 
+(defn get-history [] (:interaction @ORDER))
+
 (defn order-log! [event]
   (spit (str (:name @ORDER) "/events.edn") (str (assoc event :time (now)) "\n") :append true))
 
@@ -48,8 +50,6 @@
                 (order-log! {:ai-transcribed txt})
                 (user-chat! txt))))
         (wait-for-user-response! :attempts (- attempts 1))))))
-
-(defn get-history [] (:interaction @ORDER))
 
 ;;;;;;;;;; Transcription tracking
 (def transcriptions
